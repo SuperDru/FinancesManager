@@ -8,11 +8,11 @@ using FinancesManager.Common;
 
 namespace FinancesManager.Yahoo
 {
-    public class YahooFinance
+    public class YahooFinanceApi
     {
         private readonly HttpClient _client;
         
-        public YahooFinance()
+        public YahooFinanceApi()
         {
             var options = Configuration.Load<YahooOptions>();
             _client = new HttpClient

@@ -10,7 +10,7 @@ namespace FinancesManager.Fundamentals
 {
     public class FundamentalAnalysis
     {
-        private readonly YahooFinance _yahooApi = new YahooFinance();
+        private readonly YahooFinanceApi _yahooApi = new YahooFinanceApi();
 
         public string Instrument { get; set; }
 

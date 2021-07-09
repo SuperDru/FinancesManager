@@ -6,9 +6,9 @@ using FinancesManager.Income;
 using Tinkoff.Trading.OpenApi.Models;
 using Tinkoff.Trading.OpenApi.Network;
 
-namespace FinancesManager.Common
+namespace FinancesManager.Tinkoff
 {
-    public static class ContextExtensions
+    public static class TinkoffExtensions
     {
         public static async Task<decimal> GetTotalClosedPositionsIncome(this Context context, params IncomeContext[] marketContexts)
         {
@@ -41,8 +41,15 @@ namespace FinancesManager.Common
         public static async Task<CandlePayload> GetLastCandleByFigi(this Context context, string figi, CandleInterval interval = CandleInterval.Minute)
         {
             var now = DateTime.Now;
-            var candles = await context.MarketCandlesAsync(figi, now.AddMinutes(-5), DateTime.Now.AddMinutes(5), interval);
-            return candles.Candles.Last();
+            DateTime from, to;
+            switch (interval)
+            {
+                case CandleInterval.Minute: from = now.AddMinutes(-5); to = now.AddMinutes(5); break;
+                case CandleInterval.Day: from = now.AddDays(-5); to = now.AddDays(5); break;
+                default: throw new NotImplementedException();
+            }
+            var candles = await context.MarketCandlesAsync(figi, from, to, interval);
+            return candles.Candles.Count == 0 ? null : candles.Candles.Last();
         }
 
         public static async Task<CandlePayload> GetLastCandle(this Context context, string ticker, CandleInterval interval = CandleInterval.Minute)

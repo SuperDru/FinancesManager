@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
 using FinancesManager.Fundamentals;
+using FinancesManager.Tinkoff;
 using FinancesManager.Yahoo;
 
 namespace FinancesManager
@@ -22,8 +23,14 @@ namespace FinancesManager
 
         public static async Task Main()
         {
-            var analysis = new FundamentalAnalysis("pins");
-            await analysis.LoadFundamentals();
+            // var finance = new[] {"BRK-B", "JPM", "BAC", "MS", "C"};
+            var finance = new[] {"JPM"};
+            foreach (var ticker in finance)
+            {
+                var analysis = new FundamentalAnalysis(ticker);
+                var info = await analysis.LoadFundamentals();
+                Logger.Info(info.ToString());
+            }
 
             #region Bots
 
