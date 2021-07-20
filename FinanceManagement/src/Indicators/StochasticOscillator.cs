@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using FinanceManagement.Common;
 using Tinkoff.Trading.OpenApi.Models;
 
 namespace FinanceManagement.Indicators
 {
     public class StochasticOscillator
     {
-        private readonly Queue<CandlePayload> _values;
+        private readonly Queue<Candle> _values;
         private readonly Queue<decimal> _kValues;
 
         private readonly int _fastLength;
@@ -20,11 +21,11 @@ namespace FinanceManagement.Indicators
             _fastLength = fastLength;
             _slowLength = slowLength;
 
-            _values = new Queue<CandlePayload>(_fastLength);
+            _values = new Queue<Candle>(_fastLength);
             _kValues = new Queue<decimal>(_fastLength);
         }
 
-        public void Push(CandlePayload candle)
+        public void Push(Candle candle)
         {
             if (_values.Count == _fastLength)
             {

@@ -39,3 +39,5 @@ msbuild.wrn
 
 **/appsettings.json
 **/**/FinanceData/**
+
+*.csv

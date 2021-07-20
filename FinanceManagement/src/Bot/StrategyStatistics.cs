@@ -1,68 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace FinanceManagement.Bot
+﻿namespace FinanceManagement.Bot
 {
     public class StrategyStatistics
     {
-        public string Ticker { get; set; }
-        public string Figi { get; set; }
-
-        public StrategyStatistics(string ticker, string figi)
-        {
-            Ticker = ticker;
-            Figi = figi;
-        }
-
         public decimal Profit { get; set; }
+        public decimal ProfitValue { get; set; }
+        public decimal MaxPositionProfit { get; set; }
+        public decimal MaxPositionLoss { get; set; }
+        public decimal MaxProfit { get; set; }
+        public decimal MaxLoss { get; set; }
         public int AmountOfClosedPositions { get; set; }
         public int AmountOfProfitClosedPositions { get; set; }
         public decimal SuccessRate => AmountOfProfitClosedPositions / (decimal) AmountOfClosedPositions;
 
-        public SortedDictionary<decimal, int> Positions = new SortedDictionary<decimal, int>();
-
-        public void Long(decimal price, int size)
-        {
-            Positions[price] = Positions.ContainsKey(price) ? Positions[price] + size : size;
-        }
-
-        public void Short(decimal price, int size)
-        {
-            var remaining = size;
-            var profit = 0m;
-
-            if (Positions.Values.Sum() < size)
-            {
-                throw new Exception("Not enough long positions to execute short order");
-
-            }
-
-            foreach (var (posPrice, posSize) in Positions.ToDictionary(_ => _.Key, _ => _.Value))
-            {
-                if (posSize > remaining)
-                {
-                    profit += (price - posPrice) * remaining;
-                    Positions[posPrice] -= remaining;
-                    remaining = 0;
-                }
-                else
-                {
-                    profit += (price - posPrice) * posSize;
-                    remaining -= posSize;
-                    Positions.Remove(posPrice);
-                }
-
-                if (remaining == 0) break;
-            }
-
-            Profit += profit;
-
-            AmountOfClosedPositions++;
-            AmountOfProfitClosedPositions += profit >= 0 ? 1 : 0;
-        }
-        
         public override string ToString() =>
-            $"Ticker: {Ticker}; Profit: {Math.Round(Profit, 4)}; Success Rate: {Math.Round(SuccessRate, 2)}; Amount of closed positions: {AmountOfClosedPositions}";
+            $"Profit: {Profit:P}; " +
+            $"Profit Value {ProfitValue:F4}; " +
+            $"Success Rate: {SuccessRate:P}; " +
+            $"Max Profit: {MaxProfit:P}; " +
+            $"Max Loss: {MaxLoss:P}; " +
+            $"Max Position Profit: {MaxPositionProfit:P}; " +
+            $"Max Position Loss: {MaxPositionLoss:P}; " +
+            $"Amount of closed positions: {AmountOfClosedPositions}";
     }
 }

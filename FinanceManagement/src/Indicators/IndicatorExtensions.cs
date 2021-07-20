@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using FinanceManagement.Common;
 using Tinkoff.Trading.OpenApi.Models;
 
 namespace FinanceManagement.Indicators
@@ -21,7 +22,7 @@ namespace FinanceManagement.Indicators
             return ma.Value ?? 0;
         }
 
-        public static decimal EMA(this IEnumerable<CandlePayload> candles, int length)
+        public static decimal EMA(this IEnumerable<Candle> candles, int length)
         {
             var ema = new ExponentialMovingAverage(length);
 
@@ -33,7 +34,7 @@ namespace FinanceManagement.Indicators
             return ema.Value ?? 0;
         }
 
-        public static decimal STOCH(this IEnumerable<CandlePayload> candles, int kLength = 14, int dLength = 3)
+        public static decimal STOCH(this IEnumerable<Candle> candles, int kLength = 14, int dLength = 3)
         {
             var stoch = new StochasticOscillator(kLength, dLength);
 

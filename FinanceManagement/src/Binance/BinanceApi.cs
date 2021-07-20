@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace FinanceManagement.Binance
 {
-    public class BinanceApi
+    public class BinanceApi: IFinanceDataApi
     {
         private readonly BinanceClient _client;
 
@@ -25,9 +25,9 @@ namespace FinanceManagement.Binance
             });
         }
 
-        public async Task<List<Candle>> GetCandlesAsync(string instrument, DateTime? from = default, DateTime? to = default)
+        public async Task<List<Candle>> GetCandlesAsync(string instrument, Interval interval = Interval.Minute, DateTime? from = default, DateTime? to = default)
         {
-            var res = await _client.Spot.Market.GetKlinesAsync(instrument, KlineInterval.OneMinute, from, to);
+            var res = await _client.Spot.Market.GetKlinesAsync(instrument, KlineInterval.OneMinute, from, to, 1000);
             return res.Data.Select(_ => new Candle
             {
                 Time = _.OpenTime,

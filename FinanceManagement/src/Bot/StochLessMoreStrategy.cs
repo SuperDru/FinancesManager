@@ -32,20 +32,6 @@ namespace FinanceManagement.Bot
         }
     }
 
-    public enum StrategyResult
-    {
-        Buy = 1,
-        Sell = 2,
-        NoTrade = 3
-    }
-
-    public interface IStrategy
-    {
-        public int BaseCandlesAmount { get; }
-        void Init(IEnumerable<CandlePayload> candles);
-        StrategyResult ProcessTradingStep(CandlePayload candle);
-        void Reset();
-    }
     
     public class StochLessMoreStrategy: IStrategy
     {
@@ -62,7 +48,7 @@ namespace FinanceManagement.Bot
         private decimal LastHigh { get; set; }
         private decimal LastLow { get; set; }
 
-        public List<CandlePayload> Candles { get; set; }
+        public List<Candle> Candles { get; set; }
         public string Ticker { get; }
 
 
@@ -80,9 +66,9 @@ namespace FinanceManagement.Bot
             LastLow = 100;
         }
 
-        public void Init(IEnumerable<CandlePayload> candles)
+        public void Init(List<Candle> candles)
         {
-            Candles = candles.ToList();
+            Candles = candles;
             State = new State {PositionState = PositionState.Sold, BuyPrice = -1, SellPrice = -1};
         }
 
@@ -102,7 +88,7 @@ namespace FinanceManagement.Bot
             return true;
         }
 
-        public StrategyResult ProcessTradingStep(CandlePayload candle)
+        public StrategyResult ProcessTradingStep(Candle candle)
         {
             if (Candles == null || Candles.Count < 17)
             {
