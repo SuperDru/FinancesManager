@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FinanceManagement.Common;
 using Tinkoff.Trading.OpenApi.Models;
@@ -15,9 +16,7 @@ namespace FinanceManagement.Indicators
             var ma = new MovingAverage(length);
 
             foreach (var candle in candles.TakeLast(length))
-            {
                 ma.Push(candle);
-            }
 
             return ma.Value ?? 0;
         }

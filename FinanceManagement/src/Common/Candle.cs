@@ -4,6 +4,8 @@ namespace FinanceManagement.Common
 {
     public class Candle
     {
+        public Interval Interval { get; set; }
+        
         public DateTime Time { get; set; }
 
         public decimal Open { get; set; }

@@ -28,7 +28,14 @@ namespace FinanceManagement.Bot.Backtesting
         
         public void Buy(Candle candle)
         {
-            var position = new Position
+            var position = Positions.LastOrDefault();
+            if (position is {Closed: false})
+            {
+                Logger.Warning("Attempt to buy when previous position is not closed");
+                return;
+            }
+            
+            position = new Position
             {
                 PositionOpenedTime = candle.Time,
                 PositionOpenedPrice = candle.Close
@@ -48,7 +55,12 @@ namespace FinanceManagement.Bot.Backtesting
             position.PositionClosedTime = candle.Time;
             position.PositionClosedPrice = candle.Close;
             position.Closed = true;
+            
+            CalculateStatistics(position);
+        }
 
+        private void CalculateStatistics(Position position)
+        {
             if (position.PositionClosedPrice > position.PositionOpenedPrice)
                 Statistics.AmountOfProfitClosedPositions += 1;
             Statistics.AmountOfClosedPositions += 1;

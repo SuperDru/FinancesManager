@@ -27,6 +27,38 @@ namespace FinanceManagement.Bot.Backtesting
         
         public StrategyStatistics Process(List<Candle> candles)
         {
+            Init(candles);
+
+            foreach (var candle in candles.Skip(Strategy.BaseCandlesAmount))
+            {
+                var action = Strategy.ProcessTradingStep(candle);
+                ProcessStrategyAction(action, candle);
+            }
+
+            return Context.Statistics;
+        }
+
+        private void ProcessStrategyAction(StrategyAction action, Candle candle)
+        {
+            Context ??= new BacktestContext();
+            switch (action)
+            {
+                case StrategyAction.Buy:
+                    Context.Buy(candle);
+                    break;
+                case StrategyAction.Sell:
+                    Context.Sell(candle);
+                    Logger.Info($"Close position {Instrument}. {Context.Statistics}");
+                    break;
+                case StrategyAction.NoTrade:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(action));
+            }
+        }
+
+        private void Init(IEnumerable<Candle> candles)
+        {
             var baseCandles = candles.Take(Strategy.BaseCandlesAmount).ToList();
 
             if (baseCandles.Count < Strategy.BaseCandlesAmount)
@@ -37,35 +69,8 @@ namespace FinanceManagement.Bot.Backtesting
             }
 
             Context = new BacktestContext();
-            Strategy.Init(baseCandles);
-            foreach (var candle in candles.Skip(Strategy.BaseCandlesAmount))
-            {
-                var action = Strategy.ProcessTradingStep(candle);
-                ProcessStrategyResponse(action, candle);
-            }
-            
             Strategy.Reset();
-
-            return Context.Statistics;
-        }
-
-        private void ProcessStrategyResponse(StrategyResult action, Candle candle)
-        {
-            Context ??= new BacktestContext();
-            switch (action)
-            {
-                case StrategyResult.Buy:
-                    Context.Buy(candle);
-                    break;
-                case StrategyResult.Sell:
-                    Context.Sell(candle);
-                    Logger.Info($"Close position {Instrument}. {Context.Statistics}");
-                    break;
-                case StrategyResult.NoTrade:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(action));
-            }
+            Strategy.Init(baseCandles);
         }
     }
 }

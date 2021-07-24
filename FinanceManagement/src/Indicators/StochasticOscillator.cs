@@ -44,7 +44,12 @@ namespace FinanceManagement.Indicators
             var kValue = highest == lowest ? 0 : (candle.Close - lowest) / (highest - lowest) * 100;
             _kValues.Enqueue(kValue);
 
-            var dValue = _kValues.MA(_slowLength);
+            var ma = new MovingAverage(_slowLength);
+
+            for (var i = _kValues.Count - _slowLength; i >= 0 && i < _kValues.Count; i++)
+                ma.Push(_kValues.ElementAt(i));
+            
+            var dValue = ma.Value ?? 0;
 
             KValue = kValue;
             DValue = dValue;
