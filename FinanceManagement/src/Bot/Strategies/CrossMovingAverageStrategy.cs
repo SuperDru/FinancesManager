@@ -1,4 +1,6 @@
-﻿namespace FinanceManagement.Bot
+﻿using FinanceManagement.Bot.Strategies;
+
+namespace FinanceManagement.Bot
 {
     public class CrossMovingAverageStrategy: StrategyBase
     {
@@ -17,7 +19,7 @@
             throw new System.NotImplementedException();
         }
 
-        protected override object CalculateSpecificInfo()
+        protected override bool ShouldProcess(out object info)
         {
             throw new System.NotImplementedException();
         }

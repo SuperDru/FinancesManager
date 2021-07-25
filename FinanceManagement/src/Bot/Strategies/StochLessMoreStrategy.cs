@@ -1,6 +1,7 @@
-﻿using FinanceManagement.Indicators;
+﻿using System.Linq;
+using FinanceManagement.Indicators;
 
-namespace FinanceManagement.Bot
+namespace FinanceManagement.Bot.Strategies
 {
     public sealed class StochLessMoreStrategy: StrategyBase
     {
@@ -13,34 +14,36 @@ namespace FinanceManagement.Bot
         private decimal LastHigh { get; set; }
         private decimal LastLow { get; set; }
 
+        private StochasticOscillator StochasticOscillator { get; } 
+        
         public StochLessMoreStrategy(string instrument,
             decimal overbought, decimal oversold, decimal threshold, 
-            decimal? takeProfit = null, decimal? stopLoss = null): base(instrument, takeProfit, stopLoss)
+            decimal? takeProfit = null, decimal? stopLoss = null)
+            : base(instrument, takeProfit, stopLoss)
         {
             Overbought = overbought;
             Oversold = oversold;
             Threshold = threshold;
             
-            Reset();
-        }
-        
-        public override void Reset()
-        {
-            base.Reset();
             LastHigh = 0;
             LastLow = 100;
+            StochasticOscillator = new StochasticOscillator(14, 3);
         }
-
+        
         protected override bool ShouldSell(object info) => LastHigh - (decimal) info > Threshold;
 
         protected override bool ShouldBuy(object info) => (decimal) info - LastLow > Threshold;
 
-        protected override object CalculateSpecificInfo() => CandlesStorage.MinuteCandles.STOCH();
-
-        protected override void OnProcessed(object info) => AddStochValue((decimal) info);
-
-        private void AddStochValue(decimal stoch)
+        protected override bool ShouldProcess(out object info)
         {
+            StochasticOscillator.Push(State.Candles.Minute[^1]);
+            info = StochasticOscillator.DValue ?? 0;
+            return true;
+        }
+
+        protected override void OnProcessed(object info)
+        {
+            var stoch = (decimal) info;
             LastHigh = stoch > LastHigh && stoch > Overbought ? stoch : stoch > Overbought ? LastHigh : 0;
             LastLow = stoch < LastLow && stoch < Oversold ? stoch : stoch < Oversold ? LastLow : 100;
         }

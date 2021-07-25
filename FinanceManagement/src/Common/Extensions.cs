@@ -8,6 +8,7 @@ namespace FinanceManagement.Common
         private const decimal Bln = 1_000_000_000m;
 
         public static string OnlyTime(this DateTime dateTime) => dateTime.ToString("hh:mm:ss");
+        public static string FullTime(this DateTime dateTime) => dateTime.ToString("g");
 
         public static CandlePayload EmptyCandle(this CandlePayload last) =>
             new CandlePayload(

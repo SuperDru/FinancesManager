@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FinanceManagement.Bot.Strategies;
 using FinanceManagement.Common;
 
 namespace FinanceManagement.Bot.Backtesting
@@ -22,10 +23,10 @@ namespace FinanceManagement.Bot.Backtesting
         public async Task<StrategyStatistics> Process(IFinanceDataApi api, DateTime? from = null, DateTime? to = null)
         {
             var candles = await api.GetCandlesAsync(Instrument, Interval.Minute, from, to);
-            return Process(candles);
+            return await Process(candles);
         }
         
-        public StrategyStatistics Process(List<Candle> candles)
+        public Task<StrategyStatistics> Process(List<Candle> candles)
         {
             Init(candles);
 
@@ -35,7 +36,7 @@ namespace FinanceManagement.Bot.Backtesting
                 ProcessStrategyAction(action, candle);
             }
 
-            return Context.Statistics;
+            return Task.FromResult(Context.Statistics);
         }
 
         private void ProcessStrategyAction(StrategyAction action, Candle candle)
@@ -69,8 +70,6 @@ namespace FinanceManagement.Bot.Backtesting
             }
 
             Context = new BacktestContext();
-            Strategy.Reset();
-            Strategy.Init(baseCandles);
         }
     }
 }

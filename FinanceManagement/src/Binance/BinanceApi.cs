@@ -12,6 +12,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using FinanceManagement.Common;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace FinanceManagement.Binance
@@ -21,7 +22,7 @@ namespace FinanceManagement.Binance
         private readonly BinanceClient _client;
         private readonly string Directory;
 
-        public BinanceApi(IOptions<BinanceOptions> binanceOptions, IWebHostEnvironment hostingEnvironment)
+        public BinanceApi(IOptions<BinanceOptions> binanceOptions, IHostEnvironment hostingEnvironment)
         {
             Directory = hostingEnvironment.ContentRootPath;
             var options = binanceOptions?.Value ?? throw new ArgumentException("Options cannot be null", nameof(binanceOptions));

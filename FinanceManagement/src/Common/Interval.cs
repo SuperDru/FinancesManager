@@ -11,5 +11,6 @@
         Hour4 = 7,
         Day = 8,
         Week = 9,
+        Month = 10
     }
 }

@@ -6,11 +6,11 @@ namespace FinanceManagement.Common
 {
     public static class Logger
     {
-        private static readonly string Path = System.IO.Path.Combine(AppContext.BaseDirectory, "logs", $"log-{DateTime.Now:d}.log");
+        private static readonly string Path = System.IO.Path.Combine(AppContext.BaseDirectory, "..", "..", ".." , "logs", $"log-{DateTime.Now:d}.log");
 
         public static readonly Serilog.Core.Logger Log = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.Console(LogEventLevel.Information)
+            .WriteTo.Console(LogEventLevel.Warning)
             .WriteTo.File(Path, LogEventLevel.Debug, "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
             .CreateLogger();
 

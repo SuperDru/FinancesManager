@@ -30,6 +30,7 @@ namespace FinanceManagement
             AddFinanceApiServices(services, _configuration.GetSection("FinanceApi"));
 
             services.AddMvc();
+            services.AddHostedService<BotHostedService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -51,13 +52,13 @@ namespace FinanceManagement
 
         private static void AddFinanceApiServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<YahooFinanceApi>();
+            services.AddSingleton<YahooFinanceApi>();
             services.Configure<YahooOptions>(configuration.GetSection(YahooOptions.Name));
             
-            services.AddScoped<TinkoffApi>();
+            services.AddSingleton<TinkoffApi>();
             services.Configure<TinkoffOptions>(configuration.GetSection(TinkoffOptions.Name));
             
-            services.AddScoped<BinanceApi>();
+            services.AddSingleton<BinanceApi>();
             services.Configure<BinanceOptions>(configuration.GetSection(BinanceOptions.Name));
         }
     }

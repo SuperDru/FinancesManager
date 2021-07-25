@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FinanceManagement.Binance;
 using FinanceManagement.Bot;
 using FinanceManagement.Bot.Backtesting;
+using FinanceManagement.Bot.Strategies;
 using FinanceManagement.Common;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
