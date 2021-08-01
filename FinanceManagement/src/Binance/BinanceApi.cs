@@ -11,7 +11,6 @@ using CryptoExchange.Net.Authentication;
 using CsvHelper;
 using CsvHelper.Configuration;
 using FinanceManagement.Common;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -20,11 +19,11 @@ namespace FinanceManagement.Binance
     public class BinanceApi: IFinanceDataApi
     {
         private readonly BinanceClient _client;
-        private readonly string Directory;
+        private readonly string _directory;
 
         public BinanceApi(IOptions<BinanceOptions> binanceOptions, IHostEnvironment hostingEnvironment)
         {
-            Directory = hostingEnvironment.ContentRootPath;
+            _directory = hostingEnvironment.ContentRootPath;
             var options = binanceOptions?.Value ?? throw new ArgumentException("Options cannot be null", nameof(binanceOptions));
 
             _client = new BinanceClient(new BinanceClientOptions
@@ -50,7 +49,7 @@ namespace FinanceManagement.Binance
 
         public async Task<List<Candle>> GetCandlesFromCsvAsync(string fileName)
         {
-            using var reader = new StreamReader(Path.Combine(Directory, "HistoricalData", fileName));
+            using var reader = new StreamReader(Path.Combine(_directory, "HistoricalData", fileName));
             using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 HasHeaderRecord = false

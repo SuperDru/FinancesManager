@@ -18,7 +18,7 @@ namespace FinanceManagement.Indicators
             foreach (var candle in candles.TakeLast(length))
                 ma.Push(candle);
 
-            return ma.Value ?? 0;
+            return ma.Value;
         }
 
         public static decimal EMA(this IEnumerable<Candle> candles, int length)
@@ -42,7 +42,7 @@ namespace FinanceManagement.Indicators
                 stoch.Push(candle);
             }
 
-            return stoch.DValue ?? 0;
+            return stoch.DValue;
         }
     }
 }

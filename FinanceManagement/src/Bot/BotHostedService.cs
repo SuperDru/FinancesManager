@@ -34,12 +34,12 @@ namespace FinanceManagement.Bot
             stopwatch.Restart();
 
             var candles = new List<Candle>()
-                .Concat(candles1)
-                .Concat(candles2)
-                .Concat(candles3)
-                .Concat(candles4)
+                // .Concat(candles1)
+                // .Concat(candles2)
+                // .Concat(candles3)
+                // .Concat(candles4)
                 .Concat(candles5)
-                .Concat(candles6)
+                // .Concat(candles6)
                 .ToList();
             var context = new Backtest("ETHBUSD", strategy);
             var result = await context.Process(candles);

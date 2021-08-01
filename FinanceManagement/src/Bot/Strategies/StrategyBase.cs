@@ -119,10 +119,11 @@ namespace FinanceManagement.Bot.Strategies
             if (!ShouldProcess(out var info) || State.PositionState == PositionState.WaitAfterStopLoss) {
                 if (State.PositionState is PositionState.Sold or PositionState.WaitAfterStopLoss){
                     action = StrategyAction.NoTrade;
-                    Logger.Info($"Instrument trading ignored {Instrument}, State: {State.PositionState}, Candle: {candle.Close} {candle.Time:g}");
+                    Logger.Debug($"Instrument trading ignored {Instrument}, Candle: {candle.Close} {candle.Time:g}");
                 }
                 else
                 {
+                    State.Sell(candle.Close);
                     action = StrategyAction.Sell;
                     Logger.Info($"Sold because of bad trading conditions {Instrument}, Candle: {candle.Close} {candle.Time:g}");
                 }

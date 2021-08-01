@@ -15,6 +15,7 @@ namespace FinanceManagement.Bot.Strategies
         private decimal LastLow { get; set; }
 
         private StochasticOscillator StochasticOscillator { get; } 
+        private MovingAverage MovingAverage50Hours { get; } 
         
         public StochLessMoreStrategy(string instrument,
             decimal overbought, decimal oversold, decimal threshold, 
@@ -28,6 +29,7 @@ namespace FinanceManagement.Bot.Strategies
             LastHigh = 0;
             LastLow = 100;
             StochasticOscillator = new StochasticOscillator(14, 3);
+            MovingAverage50Hours = new MovingAverage(50);
         }
         
         protected override bool ShouldSell(object info) => LastHigh - (decimal) info > Threshold;
@@ -36,9 +38,13 @@ namespace FinanceManagement.Bot.Strategies
 
         protected override bool ShouldProcess(out object info)
         {
-            StochasticOscillator.Push(State.Candles.Minute[^1]);
-            info = StochasticOscillator.DValue ?? 0;
-            return true;
+            var lastCandle = State.Candles.Minute[^1];
+            MovingAverage50Hours.Push(lastCandle.Close);
+            StochasticOscillator.Push(lastCandle);
+            info = StochasticOscillator.DValue;
+            
+            return lastCandle.Close > MovingAverage50Hours.Value;
+            // return true;
         }
 
         protected override void OnProcessed(object info)

@@ -13,8 +13,8 @@ namespace FinanceManagement.Indicators
         private readonly int _fastLength;
         private readonly int _slowLength;
 
-        public decimal? KValue;
-        public decimal? DValue;
+        public decimal KValue;
+        public decimal DValue;
 
         public StochasticOscillator(int fastLength, int slowLength)
         {
@@ -49,7 +49,7 @@ namespace FinanceManagement.Indicators
             for (var i = _kValues.Count - _slowLength; i >= 0 && i < _kValues.Count; i++)
                 ma.Push(_kValues.ElementAt(i));
             
-            var dValue = ma.Value ?? 0;
+            var dValue = ma.Value;
 
             KValue = kValue;
             DValue = dValue;

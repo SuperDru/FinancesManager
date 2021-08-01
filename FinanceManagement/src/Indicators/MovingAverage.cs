@@ -10,7 +10,7 @@ namespace FinanceManagement.Indicators
 
         private decimal _totalSum;
 
-        public decimal? Value => Values.Any() ? _totalSum / Values.Count : (decimal?) null;
+        public decimal Value => Values.Any() ? _totalSum / Values.Count : 0;
 
         public MovingAverage(int length)
         {
@@ -20,6 +20,8 @@ namespace FinanceManagement.Indicators
 
         public void Push(decimal value)
         {
+            if (Length == 0) return;
+
             _totalSum -= Values.Count == Length ? Values.Dequeue() : 0;
 
             _totalSum += value;
