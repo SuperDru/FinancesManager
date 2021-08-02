@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using FinanceManagement.Common;
-using Tinkoff.Trading.OpenApi.Models;
 
 namespace FinanceManagement.Indicators
 {
@@ -14,9 +12,11 @@ namespace FinanceManagement.Indicators
         private readonly int _fastLength;
         private readonly int _slowLength;
 
+        private readonly MovingAverage _movingAverage;
+
         public decimal KValue;
         public decimal DValue;
-
+        
         public StochasticOscillator(int fastLength, int slowLength)
         {
             _fastLength = fastLength;
@@ -24,6 +24,8 @@ namespace FinanceManagement.Indicators
 
             _values = new Queue<Candle>(_fastLength);
             _kValues = new Queue<decimal>(_fastLength);
+
+            _movingAverage = new MovingAverage(slowLength);
         }
 
         public void Push(Candle candle)
@@ -46,13 +48,9 @@ namespace FinanceManagement.Indicators
 
             var kValue = highest == lowest ? 0 : (candle.Close - lowest) / (highest - lowest) * 100;
             _kValues.Enqueue(kValue);
-
-            var ma = new MovingAverage(_slowLength);
-
-            for (var i = Math.Max(_kValues.Count - _slowLength, 0); i < _kValues.Count; i++)
-                ma.Push(_kValues.ElementAt(i));
             
-            var dValue = ma.Value;
+            _movingAverage.Push(kValue);
+            var dValue = _movingAverage.Value;
 
             KValue = kValue;
             DValue = dValue;

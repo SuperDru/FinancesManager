@@ -30,7 +30,7 @@ namespace FinanceManagement.Indicators
                 ema.Push(candle.Close);
             }
 
-            return ema.Value ?? 0;
+            return ema.Value;
         }
 
         public static decimal STOCH(this IEnumerable<Candle> candles, int kLength = 14, int dLength = 3)

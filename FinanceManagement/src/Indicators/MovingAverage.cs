@@ -5,27 +5,27 @@ namespace FinanceManagement.Indicators
 {
     public class MovingAverage: IIndicator
     {
-        protected Queue<decimal> Values;
-        protected int Length;
+        private readonly Queue<decimal> _values;
+        private readonly int _length;
 
         private decimal _totalSum;
 
-        public decimal Value => Values.Any() ? _totalSum / Values.Count : 0;
+        public decimal Value => _values.Any() ? _totalSum / _values.Count : 0;
 
         public MovingAverage(int length)
         {
-            Length = length;
-            Values = new Queue<decimal>(length);
+            _length = length;
+            _values = new Queue<decimal>(length);
         }
 
         public void Push(decimal value)
         {
-            if (Length == 0) return;
+            if (_length == 0) return;
 
-            _totalSum -= Values.Count == Length ? Values.Dequeue() : 0;
+            _totalSum -= _values.Count == _length ? _values.Dequeue() : 0;
 
             _totalSum += value;
-            Values.Enqueue(value);
+            _values.Enqueue(value);
         }
     }
 }
