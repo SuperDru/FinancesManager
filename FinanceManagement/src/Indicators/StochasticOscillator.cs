@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FinanceManagement.Common;
 using Tinkoff.Trading.OpenApi.Models;
@@ -27,6 +28,8 @@ namespace FinanceManagement.Indicators
 
         public void Push(Candle candle)
         {
+            if (_fastLength == 0) return;
+
             if (_values.Count == _fastLength)
             {
                 _values.Dequeue();
@@ -46,7 +49,7 @@ namespace FinanceManagement.Indicators
 
             var ma = new MovingAverage(_slowLength);
 
-            for (var i = _kValues.Count - _slowLength; i >= 0 && i < _kValues.Count; i++)
+            for (var i = Math.Max(_kValues.Count - _slowLength, 0); i < _kValues.Count; i++)
                 ma.Push(_kValues.ElementAt(i));
             
             var dValue = ma.Value;
