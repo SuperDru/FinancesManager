@@ -4,7 +4,7 @@ using FinanceManagement.Common;
 
 namespace FinanceManagement.Indicators
 {
-    public class StochasticOscillator
+    public class StochasticOscillator: IIndicator
     {
         private readonly Queue<Candle> _values;
         private readonly Queue<decimal> _kValues;
@@ -16,7 +16,9 @@ namespace FinanceManagement.Indicators
 
         public decimal KValue;
         public decimal DValue;
-        
+
+        public List<object> Series { get; } = new();
+
         public StochasticOscillator(int fastLength, int slowLength)
         {
             _fastLength = fastLength;
@@ -54,6 +56,8 @@ namespace FinanceManagement.Indicators
 
             KValue = kValue;
             DValue = dValue;
+
+            Series.Add((KValue = kValue, DValue = dValue));
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using FinanceManagement.Indicators;
+﻿using System.Linq;
+using FinanceManagement.Indicators;
 using NUnit.Framework;
 
 namespace Test.Indicators
 {
-    [TestFixture]
     public class ExponentialMovingAverageTest
     {
         [Test]
@@ -13,22 +13,21 @@ namespace Test.Indicators
             Assert.AreEqual(0m, ema.Value);
 
             const decimal multiplier = 2m / (3m + 1m);
+            
+            const decimal expected1 = 1m;
+            const decimal expected2 = 2m * multiplier + expected1 * (1 - multiplier);
+            const decimal expected3 = 3m * multiplier + expected2 * (1 - multiplier);
+            const decimal expected4 = 4m * multiplier + expected3 * (1 - multiplier);
 
             ema.Push(1);
-            const decimal expected1 = 1m;
-            Assert.AreEqual(expected1, ema.Value);
-            
             ema.Push(2);
-            const decimal expected2 = 2m * multiplier + expected1 * (1 - multiplier);
-            Assert.AreEqual(expected2, ema.Value);
-            
             ema.Push(3);
-            const decimal expected3 = 3m * multiplier + expected2 * (1 - multiplier);
-            Assert.AreEqual(expected3, ema.Value);
-            
             ema.Push(4);
-            const decimal expected4 = 4m * multiplier + expected3 * (1 - multiplier);
-            Assert.AreEqual(expected4, ema.Value);
+
+            Assert.AreEqual(expected1, ema.Series[0]);
+            Assert.AreEqual(expected2, ema.Series[1]);
+            Assert.AreEqual(expected3, ema.Series[2]);
+            Assert.AreEqual(expected4, ema.Series[3]);
         }
         
         [Test]
@@ -39,21 +38,20 @@ namespace Test.Indicators
 
             const decimal multiplier = 2m / (3m + 1m);
 
-            ema.Push(1);
             const decimal expected1 = 1m;
-            Assert.AreEqual(expected1, ema.Value);
-            
-            ema.Push(-2);
             const decimal expected2 = -2m * multiplier + expected1 * (1 - multiplier);
-            Assert.AreEqual(expected2, ema.Value);
-            
-            ema.Push(-3);
             const decimal expected3 = -3m * multiplier + expected2 * (1 - multiplier);
-            Assert.AreEqual(expected3, ema.Value);
-            
-            ema.Push(4);
             const decimal expected4 = 4m * multiplier + expected3 * (1 - multiplier);
-            Assert.AreEqual(expected4, ema.Value);
+            
+            ema.Push(1);
+            ema.Push(-2);
+            ema.Push(-3);
+            ema.Push(4);
+            
+            Assert.AreEqual(expected1, ema.Series[0]);
+            Assert.AreEqual(expected2, ema.Series[1]);
+            Assert.AreEqual(expected3, ema.Series[2]);
+            Assert.AreEqual(expected4, ema.Series[3]);
         }
         
         [Test]
@@ -66,6 +64,7 @@ namespace Test.Indicators
             ema.Push(0);
 
             Assert.AreEqual(0m, ema.Value);
+            Assert.AreEqual(3, ema.Series.Count);
         }
         
         [Test]
@@ -73,12 +72,15 @@ namespace Test.Indicators
         {
             var ema = new ExponentialMovingAverage(0);
             Assert.AreEqual(0, ema.Value);
+            Assert.AreEqual(0, ema.Series.Count);
 
             ema.Push(1);
             Assert.AreEqual(0, ema.Value);
-            
+            Assert.AreEqual(0, ema.Series.Count);
+
             ema.Push(2);
             Assert.AreEqual(0, ema.Value);
+            Assert.AreEqual(0, ema.Series.Count);
         }
     }
 }

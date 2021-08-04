@@ -6,7 +6,7 @@ namespace FinanceManagement.Common
 {
     public class CandlesStore
     {
-        private Dictionary<Interval, List<Candle>> Candles { get; } = Enum
+        public Dictionary<Interval, List<Candle>> Candles { get; } = Enum
             .GetValues(typeof(Interval))
             .Cast<Interval>()
             .ToDictionary(_ => _, _ => new List<Candle>());

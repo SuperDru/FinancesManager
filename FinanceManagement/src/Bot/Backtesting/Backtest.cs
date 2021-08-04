@@ -20,13 +20,13 @@ namespace FinanceManagement.Bot.Backtesting
             Instrument = instrument;
         }
 
-        public async Task<StrategyStatistics> Process(IFinanceDataApi api, DateTime? from = null, DateTime? to = null)
+        public async Task<BacktestResult> Process(IFinanceDataApi api, DateTime? from = null, DateTime? to = null)
         {
             var candles = await api.GetCandlesAsync(Instrument, Interval.Minute, from, to);
-            return await Process(candles);
+            return Process(candles);
         }
         
-        public Task<StrategyStatistics> Process(List<Candle> candles)
+        public BacktestResult Process(List<Candle> candles)
         {
             Init(candles);
 
@@ -36,7 +36,12 @@ namespace FinanceManagement.Bot.Backtesting
                 ProcessStrategyAction(action, candle);
             }
 
-            return Task.FromResult(Context.Statistics);
+            return new BacktestResult
+            {
+                Positions = Context.Positions,
+                BalanceSnapshots = Context.BalanceSnapshots,
+                Statistics = Context.Statistics
+            };
         }
 
         private void ProcessStrategyAction(StrategyAction action, Candle candle)

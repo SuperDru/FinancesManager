@@ -1,4 +1,5 @@
 ﻿using System;
+using FinanceManagement.Indicators;
 
 namespace FinanceManagement.Common
 {

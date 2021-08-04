@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace Test.Indicators
 {
-    [TestFixture]
     public class StochasticOscillatorTest
     {
         [Test]

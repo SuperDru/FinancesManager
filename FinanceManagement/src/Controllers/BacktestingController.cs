@@ -16,24 +16,18 @@ namespace FinanceManagement.Controllers
     public class BacktestingController: ControllerBase
     {
         [HttpGet("backtest")]
-        public async Task Backtest(
+        public async Task<BacktestResult> Backtest(
             [FromQuery] string instrument,
             [FromQuery] string strategyName,
             [FromServices] BinanceApi api)
         {
+            instrument = instrument.ToUpper();
+            
             var candles = await api.GetCandlesFromCsvAsync("ETHBUSD-1m-2021-05.csv");
-            var strategy = new StochLessMoreStrategy(instrument, 80m, 20m, 5m, 15m, 5m);
-            //
-            // var candles = new List<Candle>();
-            // var from = DateTime.UtcNow.AddDays(-3);
-            // while (from <= DateTime.UtcNow.AddHours(-1))
-            // {
-            //     candles.AddRange(await api.GetCandlesAsync("ETHBUSD", Interval.Minute, from));
-            //     from = candles.Last().Time.AddMinutes(1);
-            // }
-            //
+            var strategy = new StochLessMoreStrategy(instrument, 80m, 20m, 5m, 10m, 5m);
+
             var context = new Backtest(instrument, strategy);
-            var result = context.Process(candles);
+            return context.Process(candles);
         }
     }
 }

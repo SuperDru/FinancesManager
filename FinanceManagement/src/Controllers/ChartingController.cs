@@ -18,21 +18,16 @@ namespace FinanceManagement.Controllers
             _api = api;
         }
         
-        [HttpGet, Route("{instrument:required}/prices")]
-        public async Task<IEnumerable<ChartingPrice>> GetLinePrices([FromRoute] string instrument)
+        [HttpGet, Route("candles")]
+        public async Task<IEnumerable<Candle>> GetCandles([FromQuery] string instrument, [FromQuery] Interval interval)
         {
-            // var candles = await _api.GetCandlesAsync(instrument.ToUpper());
-            // return candles.Select(_ => new ChartingPrice
-            // {
-            //     Price = _.Close,
-            //     Time = _.Time
-            // });
             var candles = await _api.GetCandlesFromCsvAsync("ETHBUSD-1m-2021-05.csv");
-            return candles.Select(_ => new ChartingPrice
+            var store = new CandlesStore();
+            foreach (var candle in candles)
             {
-                Price = _.Close,
-                Time = _.Time
-            });
+                store.AddCandle(candle);
+            }
+            return store.Candles[interval];
         }
     }
 }

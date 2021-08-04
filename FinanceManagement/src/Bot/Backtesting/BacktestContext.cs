@@ -23,6 +23,7 @@ namespace FinanceManagement.Bot.Backtesting
     {
         public List<Position> Positions { get; } = new ();
         public StrategyStatistics Statistics { get; } = new ();
+        public List<BalanceSnapshot> BalanceSnapshots { get; set; } = new();
 
         private decimal _profitSum;
         
@@ -41,6 +42,13 @@ namespace FinanceManagement.Bot.Backtesting
                 PositionOpenedPrice = candle.Close
             };
             Positions.Add(position);
+
+            if (BalanceSnapshots.Count == 0)
+                BalanceSnapshots.Add(new BalanceSnapshot
+                {
+                    Time = candle.Time,
+                    Balance = candle.Close
+                });
         }
 
         public void Sell(Candle candle)
@@ -55,6 +63,13 @@ namespace FinanceManagement.Bot.Backtesting
             position.PositionClosedTime = candle.Time;
             position.PositionClosedPrice = candle.Close;
             position.Closed = true;
+
+            var lastSnapshot = BalanceSnapshots.Last();
+            BalanceSnapshots.Add(new BalanceSnapshot
+            {
+                Time = candle.Time,
+                Balance = lastSnapshot.Balance + position.ProfitValue
+            });
             
             CalculateStatistics(position);
         }

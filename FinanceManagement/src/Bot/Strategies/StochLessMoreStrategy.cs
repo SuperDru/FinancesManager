@@ -43,8 +43,8 @@ namespace FinanceManagement.Bot.Strategies
             StochasticOscillator.Push(lastCandle);
             info = StochasticOscillator.DValue;
             
-            return lastCandle.Close > MovingAverage50Hours.Value;
-            // return true;
+            // return lastCandle.Close > MovingAverage50Hours.Value;
+            return true;
         }
 
         protected override void OnProcessed(object info)

@@ -3,7 +3,6 @@ using NUnit.Framework;
 
 namespace Test.Indicators
 {
-    [TestFixture]
     public class MovingAverageTest
     {
         [Test]
@@ -14,6 +13,7 @@ namespace Test.Indicators
             ma.Push(1);
 
             Assert.AreEqual(1, ma.Value); // 1 / 1
+            Assert.AreEqual(1, ma.Series[0]);
         }
         
         [Test]
@@ -26,6 +26,9 @@ namespace Test.Indicators
             ma.Push(3);
 
             Assert.AreEqual(2, ma.Value); // (1 + 2 + 3) / 3
+            Assert.AreEqual(1, ma.Series[0]);
+            Assert.AreEqual(1.5, ma.Series[1]);
+            Assert.AreEqual(2, ma.Series[2]);
         }
         
         [Test]
@@ -37,6 +40,8 @@ namespace Test.Indicators
             ma.Push(2);
 
             Assert.AreEqual(3, ma.Value); // (4 + 2) / 2
+            Assert.AreEqual(4, ma.Series[0]);
+            Assert.AreEqual(3, ma.Series[1]);
         }
         
         [Test]
@@ -50,6 +55,11 @@ namespace Test.Indicators
             ma.Push(3);
             
             Assert.AreEqual(2, ma.Value); // (2 + 1 + 3) / 3
+            Assert.AreEqual(5, ma.Series[0]);
+            Assert.AreEqual(3.5m, ma.Series[1]);
+            Assert.AreEqual(8m / 3m, ma.Series[2]);
+            Assert.AreEqual(2m, ma.Series[3]);
+            
         }
         
         [Test]
@@ -62,6 +72,9 @@ namespace Test.Indicators
             ma.Push(0);
 
             Assert.AreEqual(0, ma.Value); // (0 + 0 + 0) / 3
+            Assert.AreEqual(0, ma.Series[0]);
+            Assert.AreEqual(0, ma.Series[1]);
+            Assert.AreEqual(0, ma.Series[2]);
         }
         
         [Test]
@@ -74,6 +87,9 @@ namespace Test.Indicators
             ma.Push(-3);
 
             Assert.AreEqual(-2, ma.Value); // (-1 + -2 + -3) / 3
+            Assert.AreEqual(-1, ma.Series[0]);
+            Assert.AreEqual(-1.5, ma.Series[1]);
+            Assert.AreEqual(-2, ma.Series[2]);
         }
         
         [Test]
@@ -82,6 +98,7 @@ namespace Test.Indicators
             var ma = new MovingAverage(3);
 
             Assert.AreEqual(0, ma.Value);
+            Assert.AreEqual(0, ma.Series.Count);
         }
         
         [Test]
@@ -95,6 +112,8 @@ namespace Test.Indicators
             
             ma.Push(2);
             Assert.AreEqual(0, ma.Value);
+            
+            Assert.AreEqual(0, ma.Series.Count);
         }
     }
 }

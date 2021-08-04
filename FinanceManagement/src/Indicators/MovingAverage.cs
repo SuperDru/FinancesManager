@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using FinanceManagement.Common;
 
 namespace FinanceManagement.Indicators
 {
@@ -10,7 +11,8 @@ namespace FinanceManagement.Indicators
 
         private decimal _totalSum;
 
-        public decimal Value => _values.Any() ? _totalSum / _values.Count : 0;
+        public decimal Value => (decimal) (Series.LastOrDefault() ?? 0m);
+        public List<object> Series { get; } = new();
 
         public MovingAverage(int length)
         {
@@ -18,14 +20,18 @@ namespace FinanceManagement.Indicators
             _values = new Queue<decimal>(length);
         }
 
+        public void Push(Candle candle) => Push(candle.Close);
+
         public void Push(decimal value)
         {
             if (_length == 0) return;
 
             _totalSum -= _values.Count == _length ? _values.Dequeue() : 0;
-
             _totalSum += value;
+            
             _values.Enqueue(value);
+            
+            Series.Add(_totalSum / _values.Count);
         }
     }
 }

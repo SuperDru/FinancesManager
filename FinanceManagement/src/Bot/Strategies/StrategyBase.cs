@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using FinanceManagement.Common;
 
 namespace FinanceManagement.Bot.Strategies
@@ -9,7 +8,7 @@ namespace FinanceManagement.Bot.Strategies
         NotReady = 0,
         Bought = 1,
         Sold = 2,
-        WaitAfterStopLoss = 3
+        Wait = 3
     }
 
     public class State
@@ -37,10 +36,10 @@ namespace FinanceManagement.Bot.Strategies
             PositionState = PositionState.Sold;
         }
         
-        public void SellByStopLoss(decimal sellPrice)
+        public void Wait(decimal sellPrice)
         {
             SellPrice = sellPrice;
-            PositionState = PositionState.WaitAfterStopLoss;
+            PositionState = PositionState.Wait;
             AfterStopLossCandlesCount = 0;
         }
         
@@ -62,7 +61,7 @@ namespace FinanceManagement.Bot.Strategies
             switch (PositionState)
             {
                 case PositionState.NotReady when BaseCandlesCount == BaseCandlesCandlesConstraint:
-                case PositionState.WaitAfterStopLoss when AfterStopLossCandlesCount > SkipStopLossCandlesConstraint:
+                case PositionState.Wait when AfterStopLossCandlesCount > SkipStopLossCandlesConstraint:
                     PositionState = PositionState.Sold;
                     break;
             }
@@ -116,8 +115,8 @@ namespace FinanceManagement.Bot.Strategies
 
             StrategyAction action;
 
-            if (!ShouldProcess(out var info) || State.PositionState == PositionState.WaitAfterStopLoss) {
-                if (State.PositionState is PositionState.Sold or PositionState.WaitAfterStopLoss){
+            if (!ShouldProcess(out var info) || State.PositionState == PositionState.Wait) {
+                if (State.PositionState is PositionState.Sold or PositionState.Wait){
                     action = StrategyAction.NoTrade;
                     Logger.Debug($"Instrument trading ignored {Instrument}, Candle: {candle.Close} {candle.Time:g}");
                 }
@@ -137,26 +136,26 @@ namespace FinanceManagement.Bot.Strategies
                 case PositionState.Sold when ShouldBuy(info):
                     State.Buy(candle.Close);
                     action = StrategyAction.Buy;
-                    Logger.Info($"Bought {Instrument}, Candle: {candle.Close} {candle.Time:g}");
+                    Logger.Info($"Bought {Instrument}, Candle: {candle.Close} {candle.Time:g}, info: {info}");
                     break;
                 case PositionState.Bought when ShouldSell(info):
                     State.Sell(candle.Close);
                     action = StrategyAction.Sell;
-                    Logger.Info($"Sold {Instrument}, Candle: {candle.Close} {candle.Time:g}");
+                    Logger.Info($"Sold {Instrument}, Candle: {candle.Close} {candle.Time:g}, info: {info}");
                     break;
                 case PositionState.Bought when StopLoss != null && (State.BuyPrice - candle.Close) / State.BuyPrice >= StopLoss:
-                    State.SellByStopLoss(candle.Close);
+                    State.Wait(candle.Close);
                     action = StrategyAction.Sell;
-                    Logger.Info($"Sold by Stop Loss {Instrument}, Candle: {candle.Close} {candle.Time:g}");
+                    Logger.Info($"Sold by Stop Loss {Instrument}, Candle: {candle.Close} {candle.Time:g}, info: {info}");
                     break;
                 case PositionState.Bought when TakeProfit != null && (candle.Close - State.BuyPrice) / State.BuyPrice >= TakeProfit:
                     State.Sell(candle.Close);
                     action = StrategyAction.Sell;
-                    Logger.Info($"Sold by Take Profit {Instrument}, Candle: {candle.Close} {candle.Time:g}");
+                    Logger.Info($"Sold by Take Profit {Instrument}, Candle: {candle.Close} {candle.Time:g}, info: {info}");
                     break;
                 default:
                     action = StrategyAction.NoTrade;
-                    Logger.Debug($"No Trade {Instrument}, Candle: {candle.Close} {candle.Time:g}");
+                    Logger.Debug($"No Trade {Instrument}, Candle: {candle.Close} {candle.Time:g}, info: {info}");
                     break;
             }
 

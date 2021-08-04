@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Tinkoff.Trading.OpenApi.Models;
+﻿using System.Collections.Generic;
+using FinanceManagement.Common;
 
 namespace FinanceManagement.Indicators
 {
     public interface IIndicator
     {
-        decimal? Value => null;
-        void Push(decimal value);
+        List<object> Series { get; }
+        void Push(Candle candle);
     }
 }
