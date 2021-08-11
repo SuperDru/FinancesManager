@@ -19,7 +19,7 @@ namespace FinanceManagement.Bot
             throw new System.NotImplementedException();
         }
 
-        protected override bool ShouldProcess(out object info)
+        protected override bool OnProcessing(out object info)
         {
             throw new System.NotImplementedException();
         }

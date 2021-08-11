@@ -36,15 +36,16 @@ namespace FinanceManagement.Bot.Strategies
 
         protected override bool ShouldBuy(object info) => (decimal) info - LastLow > Threshold;
 
-        protected override bool ShouldProcess(out object info)
+        protected override bool OnProcessing(out object info)
         {
             var lastCandle = State.Candles.Minute[^1];
-            MovingAverage50Hours.Push(lastCandle.Close);
+            if (State.Candles.Hour.Count > 1 && lastCandle.Time.Minute == 0)
+                MovingAverage50Hours.Push(State.Candles.Hour[^2]);
             StochasticOscillator.Push(lastCandle);
             info = StochasticOscillator.DValue;
             
-            // return lastCandle.Close > MovingAverage50Hours.Value;
-            return true;
+            return lastCandle.Close > MovingAverage50Hours.Value;
+            // return true;
         }
 
         protected override void OnProcessed(object info)

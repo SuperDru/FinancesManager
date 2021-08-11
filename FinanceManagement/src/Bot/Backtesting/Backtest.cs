@@ -38,7 +38,7 @@ namespace FinanceManagement.Bot.Backtesting
 
             return new BacktestResult
             {
-                Positions = Context.Positions,
+                Positions = Context.Positions.Where(_ => _.Closed).ToList(),
                 BalanceSnapshots = Context.BalanceSnapshots,
                 Statistics = Context.Statistics
             };

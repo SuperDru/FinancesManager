@@ -4,7 +4,7 @@ using FinanceManagement.Indicators;
 
 namespace FinanceManagement.Common
 {
-    public class ComposeResult
+    public class ComposeResponse
     {
         public List<Candle> Candles { get; set; }
         public BacktestResult Backtest { get; set; }

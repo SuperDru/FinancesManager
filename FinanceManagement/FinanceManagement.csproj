@@ -29,4 +29,8 @@
       <Content Remove="src\FinanceData\**" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="logs" />
+    </ItemGroup>
+
 </Project>

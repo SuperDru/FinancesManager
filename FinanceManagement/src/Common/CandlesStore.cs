@@ -6,6 +6,8 @@ namespace FinanceManagement.Common
 {
     public class CandlesStore
     {
+        public DateTime Time => Minute.LastOrDefault()?.Time ?? default;
+        
         public Dictionary<Interval, List<Candle>> Candles { get; } = Enum
             .GetValues(typeof(Interval))
             .Cast<Interval>()
@@ -27,23 +29,28 @@ namespace FinanceManagement.Common
         /// </summary>
         /// <param name="candle"></param>
         /// <exception cref="ArgumentException"></exception>
-        public void AddCandle(Candle candle)
+        /// <returns>True if new candle is added</returns>
+        public bool AddCandle(Candle candle)
         {
             if (candle.Interval != Interval.Minute)
                 throw new ArgumentException("Only minute candles can be added to the store");
+
+            var previousTime = Time;
             
             foreach (var interval in Candles.Keys)
             {
                 UpdateCandles(interval, candle, interval.StartTime(candle.Time));
             }
+
+            return Time > previousTime;
         }
 
-        private void UpdateCandles(Interval interval, Candle candle, DateTime startTime)
+        private bool UpdateCandles(Interval interval, Candle candle, DateTime startTime)
         {
             var candles = Candles[interval];
             var last = candles.LastOrDefault();
             
-            if (last?.Time > startTime) return;
+            if (last?.Time > startTime) return false;
             
             if (last == null || last.Time < startTime)
             {
@@ -57,13 +64,15 @@ namespace FinanceManagement.Common
                     Volume = candle.Volume,
                     Time = startTime
                 });
-                return;
+                return true;
             }
 
             last.High = Math.Max(last.High, candle.High);
             last.Low = Math.Min(last.Low, candle.Low);
             last.Volume += candle.Volume;
             last.Close = candle.Close;
+
+            return true;
         }
     }
 }
