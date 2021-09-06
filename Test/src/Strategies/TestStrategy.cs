@@ -37,7 +37,13 @@ namespace Test.Strategies
         private bool _shouldProcess = true;
         
         public TestStrategy(decimal? takeProfit = null, decimal? stopLoss = null, TimeSpan? waitAfterStopLoss = null) : 
-            base("TEST", takeProfit, stopLoss, waitAfterStopLoss)
+            base(new StrategyOptions
+            {
+                Instrument = "TEST",
+                TakeProfit = takeProfit,
+                StopLoss = stopLoss,
+                WaitAfterStopLoss = waitAfterStopLoss
+            })
         {
         }
 

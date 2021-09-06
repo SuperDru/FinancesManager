@@ -1,95 +1,14 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Linq;
 using FinanceManagement.Common;
+using FinanceManagement.Indicators;
 
 namespace FinanceManagement.Bot.Strategies
 {
-    public enum PositionState
-    {
-        NotReady = 0,
-        Bought = 1,
-        Sold = 2,
-        Wait = 3
-    }
-
-    public class State
-    {
-        public CandlesStore Candles { get; } = new ();
-        public PositionState PositionState { get; set; }
-        public decimal BuyPrice { get; set; } = -1;
-        public decimal SellPrice { get; set; } = -1;
-        
-        public int SkipStopLossCandlesConstraint { get; set; }
-        public int BaseCandlesCandlesConstraint { get; set; }
-        
-        private int AfterStopLossCandlesCount { get; set; }
-        private int BaseCandlesCount { get; set; }
-
-        private Func<State, bool> ExitWaitCondition { get; set; }
-
-        public void Buy(decimal buyPrice)
-        {
-            BuyPrice = buyPrice;
-            PositionState = PositionState.Bought;
-        }
-
-        public void Sell(decimal sellPrice)
-        {
-            SellPrice = sellPrice;
-            PositionState = PositionState.Sold;
-        }
-        
-        public void SellByStopLoss(decimal sellPrice)
-        {
-            SellPrice = sellPrice;
-            PositionState = PositionState.Wait;
-            AfterStopLossCandlesCount = 0;
-        }
-        
-        public void Wait(TimeSpan time)
-        {
-            PositionState = PositionState.Wait;
-            var lastTime = Candles.Time;
-            ExitWaitCondition = state => state.Candles.Time > lastTime + time;
-        }
-        
-        public void AddCandle(Candle candle)
-        {
-            var added = Candles.AddCandle(candle);
-            if (!added)
-            {
-                Logger.Warning($"Expected latest candle {Candles.Minute[^1].Time:g} -> {candle.Time:g}");
-                PositionState = PositionState.NotReady;
-                return;
-            }
-
-            if (Candles.Minute.Count > 1 && Candles.Minute[^1].Time - Candles.Minute[^2].Time != TimeSpan.FromMinutes(1))
-            {
-                Logger.Warning($"Candles in inconsistent condition {Candles.Minute[^2].Time:g} -> {Candles.Minute[^1].Time:g}, resetting state");
-                PositionState = PositionState.NotReady;
-                BaseCandlesCount = 0; // reset state to wait again for new base candles
-            }
-
-            AfterStopLossCandlesCount++;
-            BaseCandlesCount++;
-
-            switch (PositionState)
-            {
-                case PositionState.NotReady when BaseCandlesCount >= BaseCandlesCandlesConstraint:
-                // case PositionState.Wait when AfterStopLossCandlesCount > SkipStopLossCandlesConstraint:
-                case PositionState.Wait when ExitWaitCondition(this):
-                    PositionState = PositionState.Sold;
-                    break;
-            }
-        }
-    }
-    
     public abstract class StrategyBase: IStrategy
     {
         public abstract int BaseCandlesAmount { get; }
         
-        protected internal State State { get; }
+        protected internal StrategyState State { get; }
 
         private string Instrument { get; }
 
@@ -98,19 +17,22 @@ namespace FinanceManagement.Bot.Strategies
 
         private TimeSpan SkipCandlesAfterStopLoss { get; }
 
-        protected StrategyBase(string instrument,  decimal? takeProfit = null, decimal? stopLoss = null, TimeSpan? waitAfterStopLoss = null)
+        protected IndicatorsCalculator Indicators { get; }
+
+        protected StrategyBase(StrategyOptions options)
         {
-            Instrument = instrument;
-            TakeProfit = takeProfit / 100m;
-            StopLoss = stopLoss / 100m;
-            SkipCandlesAfterStopLoss = waitAfterStopLoss ?? TimeSpan.FromMinutes(3);
+            Instrument = options.Instrument;
+            TakeProfit = options.TakeProfit / 100m;
+            StopLoss = options.StopLoss / 100m;
+            SkipCandlesAfterStopLoss = options.WaitAfterStopLoss ?? TimeSpan.FromMinutes(3);
             
-            State = new State
+            State = new StrategyState
             {
                 PositionState = PositionState.NotReady,
                 // ReSharper disable once VirtualMemberCallInConstructor
                 BaseCandlesCandlesConstraint = BaseCandlesAmount
             };
+            Indicators = new IndicatorsCalculator(State.Candles);
         }
 
         public StrategyAction ProcessTradingStep(Candle candle)

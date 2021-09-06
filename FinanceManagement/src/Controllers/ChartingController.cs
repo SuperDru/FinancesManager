@@ -45,7 +45,7 @@ namespace FinanceManagement.Controllers
             var ma = new MovingAverage(50);
             foreach (var candle in hour)
             {
-                ma.Push(candle);
+                ma.Push(candle.Close);
             }
             return ma;
         }

@@ -28,7 +28,16 @@ namespace FinanceManagement.Bot
             var candles4 = await _api.GetCandlesFromCsvAsync("ETHBUSD-1m-2021-04.csv");
             var candles5 = await _api.GetCandlesFromCsvAsync("ETHBUSD-1m-2021-05.csv");
             var candles6 = await _api.GetCandlesFromCsvAsync("ETHBUSD-1m-2021-06.csv");
-            var strategy = new StochLessMoreStrategy("ETHBUSD", 80m, 20m, 5m, 10m, 5m);
+            var options = new StochLessMoreStrategyOptions
+            {
+                Instrument = "ETHBUSD",
+                Overbought = 80m,
+                Oversold = 20m,
+                Threshold = 5m,
+                TakeProfit = 10m,
+                StopLoss = 5m,
+            };
+            var strategy = new StochLessMoreStrategy(options);
             var candlesLoadingTime = stopwatch.ElapsedMilliseconds.ToString();
             
             stopwatch.Restart();

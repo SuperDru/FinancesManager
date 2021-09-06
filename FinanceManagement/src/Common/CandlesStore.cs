@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace FinanceManagement.Common
 {
-    public class CandlesStore
+    public class CandlesStore: IObservable<Candle>
     {
         public DateTime Time => Minute.LastOrDefault()?.Time ?? default;
         
@@ -24,6 +24,16 @@ namespace FinanceManagement.Common
         public List<Candle> Week => Candles[Interval.Week];
         public List<Candle> Month => Candles[Interval.Month];
 
+        private List<IObserver<Candle>> _observers;
+
+        public IDisposable Subscribe(IObserver<Candle> observer)
+        {
+            _observers ??= new List<IObserver<Candle>>();
+            _observers.Add(observer);
+
+            return new UnsubscribeContext<Candle>(_observers, observer);
+        }
+
         /// <summary>
         /// Add minute candle to the store
         /// </summary>
@@ -39,7 +49,16 @@ namespace FinanceManagement.Common
             
             foreach (var interval in Candles.Keys)
             {
-                UpdateCandles(interval, candle, interval.StartTime(candle.Time));
+                if (!UpdateCandles(interval, candle, interval.StartTime(candle.Time)))
+                    continue;
+                
+                if (_observers == null) continue;
+
+                foreach (var observer in _observers)
+                {
+                    var intervalCandle = Candles[interval].Last();
+                    observer.OnNext(intervalCandle);
+                }
             }
 
             return Time > previousTime;
@@ -51,7 +70,7 @@ namespace FinanceManagement.Common
             var last = candles.LastOrDefault();
             
             if (last?.Time > startTime) return false;
-            
+
             if (last == null || last.Time < startTime)
             {
                 candles.Add(new Candle

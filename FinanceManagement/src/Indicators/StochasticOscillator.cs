@@ -4,54 +4,46 @@ using FinanceManagement.Common;
 
 namespace FinanceManagement.Indicators
 {
-    public class StochasticOscillator: IIndicator
+    public class StochasticOscillator: ICandleIndicator
     {
-        private readonly Queue<Candle> _values;
-        private readonly Queue<decimal> _kValues;
+        public List<object> Series { get; } = new();
 
-        private readonly int _fastLength;
-        private readonly int _slowLength;
+        private LinkedList<Candle> _values;
 
-        private readonly MovingAverage _movingAverage;
+        private int _fastLength;
+
+        private MovingAverage _movingAverage;
 
         public decimal KValue;
         public decimal DValue;
 
-        public List<object> Series { get; } = new();
-
         public StochasticOscillator(int fastLength, int slowLength)
         {
             _fastLength = fastLength;
-            _slowLength = slowLength;
-
-            _values = new Queue<Candle>(_fastLength);
-            _kValues = new Queue<decimal>(_fastLength);
-
+            _values = new LinkedList<Candle>();
             _movingAverage = new MovingAverage(slowLength);
         }
 
-        public void Push(Candle candle)
+        public void Push(Candle candle, bool changed = false)
         {
             if (_fastLength == 0) return;
 
-            if (_values.Count == _fastLength)
+            if (changed && _values.Count >= 1)
             {
-                _values.Dequeue();
+                _values.RemoveLast();
             }
-            _values.Enqueue(candle);
-
-            if (_kValues.Count == _fastLength + _slowLength)
+            else if (_values.Count == _fastLength)
             {
-                _kValues.Dequeue();
+                _values.RemoveFirst();
             }
-
+            _values.AddLast(candle);
+            
             var highest = _values.Max(x => x.High);
             var lowest = _values.Min(x => x.Low);
 
             var kValue = highest == lowest ? 0 : (candle.Close - lowest) / (highest - lowest) * 100;
-            _kValues.Enqueue(kValue);
             
-            _movingAverage.Push(kValue);
+            _movingAverage.Push(kValue, changed);
             var dValue = _movingAverage.Value;
 
             KValue = kValue;

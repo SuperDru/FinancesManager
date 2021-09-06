@@ -1,9 +1,16 @@
-﻿using System.Linq;
+﻿using FinanceManagement.Common;
 using FinanceManagement.Indicators;
 
 namespace FinanceManagement.Bot.Strategies
 {
-    public sealed class StochLessMoreStrategy: StrategyBase
+    public class StochLessMoreStrategyOptions: StrategyOptions
+    {
+        public decimal Overbought { get; set; }
+        public decimal Oversold { get; set; }
+        public decimal Threshold { get; set; }
+    }
+    
+    public class StochLessMoreStrategy: StrategyBase
     {
         public override int BaseCandlesAmount => 17; // 14 + 3
 
@@ -17,19 +24,17 @@ namespace FinanceManagement.Bot.Strategies
         private StochasticOscillator StochasticOscillator { get; } 
         private MovingAverage MovingAverage50Hours { get; } 
         
-        public StochLessMoreStrategy(string instrument,
-            decimal overbought, decimal oversold, decimal threshold, 
-            decimal? takeProfit = null, decimal? stopLoss = null)
-            : base(instrument, takeProfit, stopLoss)
+        public StochLessMoreStrategy(StochLessMoreStrategyOptions options) : base(options)
         {
-            Overbought = overbought;
-            Oversold = oversold;
-            Threshold = threshold;
+            Overbought = options.Overbought;
+            Oversold = options.Oversold;
+            Threshold = options.Threshold;
             
             LastHigh = 0;
             LastLow = 100;
-            StochasticOscillator = new StochasticOscillator(14, 3);
-            MovingAverage50Hours = new MovingAverage(50);
+
+            StochasticOscillator = Indicators.RequireIndicator(new StochasticOscillator(14, 3));
+            MovingAverage50Hours = Indicators.RequireIndicator(new MovingAverage(50), Interval.Hour, CandleSource.Close);
         }
         
         protected override bool ShouldSell(object info) => LastHigh - (decimal) info > Threshold;
@@ -38,14 +43,9 @@ namespace FinanceManagement.Bot.Strategies
 
         protected override bool OnProcessing(out object info)
         {
-            var lastCandle = State.Candles.Minute[^1];
-            if (State.Candles.Hour.Count > 1 && lastCandle.Time.Minute == 0)
-                MovingAverage50Hours.Push(State.Candles.Hour[^2]);
-            StochasticOscillator.Push(lastCandle);
             info = StochasticOscillator.DValue;
-            
+            var lastCandle = State.Candles.Minute[^1];
             return lastCandle.Close > MovingAverage50Hours.Value;
-            // return true;
         }
 
         protected override void OnProcessed(object info)

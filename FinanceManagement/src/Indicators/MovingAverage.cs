@@ -1,36 +1,42 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using FinanceManagement.Common;
 
 namespace FinanceManagement.Indicators
 {
-    public class MovingAverage: IIndicator
+    public class MovingAverage: IDecimalIndicator
     {
-        private readonly Queue<decimal> _values;
-        private readonly int _length;
+        public List<object> Series { get; } = new();
+
+        private LinkedList<decimal> _values;
+        private int _length;
 
         private decimal _totalSum;
 
         public decimal Value => (decimal) (Series.LastOrDefault() ?? 0m);
-        public List<object> Series { get; } = new();
 
         public MovingAverage(int length)
         {
             _length = length;
-            _values = new Queue<decimal>(length);
+            _values = new LinkedList<decimal>();
         }
-
-        public void Push(Candle candle) => Push(candle.Close);
-
-        public void Push(decimal value)
+        
+        public void Push(decimal value, bool changed = false)
         {
             if (_length == 0) return;
 
-            _totalSum -= _values.Count == _length ? _values.Dequeue() : 0;
+            if (changed && _values.Count >= 1)
+            {
+                _totalSum -= _values.Last();
+                _values.RemoveLast();
+            }
+            else if (_values.Count == _length)
+            {
+                _totalSum -= _values.First();
+                _values.RemoveFirst();
+            }
             _totalSum += value;
-            
-            _values.Enqueue(value);
-            
+            _values.AddLast(value);
+
             Series.Add(_totalSum / _values.Count);
         }
     }

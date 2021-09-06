@@ -3,14 +3,14 @@ using NUnit.Framework;
 
 namespace Test.Indicators
 {
-    public class MovingAverageTest
+    public class MovingAverageTest: FinanceTestBase
     {
         [Test]
         public void SingleValue()
         {
-            var ma = new MovingAverage(1);
+            var ma = Indicators.RequireIndicator(new MovingAverage(1), source: CandleSource.Close);
             
-            ma.Push(1);
+            NewCandle(close: 1);
 
             Assert.AreEqual(1, ma.Value); // 1 / 1
             Assert.AreEqual(1, ma.Series[0]);
@@ -19,11 +19,11 @@ namespace Test.Indicators
         [Test]
         public void MultipleValues()
         {
-            var ma = new MovingAverage(3);
+            var ma = Indicators.RequireIndicator(new MovingAverage(3), source: CandleSource.Close);
             
-            ma.Push(1);
-            ma.Push(2);
-            ma.Push(3);
+            NewCandle(close: 1);
+            NewCandle(close: 2);
+            NewCandle(close: 3);
 
             Assert.AreEqual(2, ma.Value); // (1 + 2 + 3) / 3
             Assert.AreEqual(1, ma.Series[0]);
@@ -34,10 +34,10 @@ namespace Test.Indicators
         [Test]
         public void LessThanLength()
         {
-            var ma = new MovingAverage(3);
+            var ma = Indicators.RequireIndicator(new MovingAverage(3), source: CandleSource.Close);
             
-            ma.Push(4);
-            ma.Push(2);
+            NewCandle(close: 4);
+            NewCandle(close: 2);
 
             Assert.AreEqual(3, ma.Value); // (4 + 2) / 2
             Assert.AreEqual(4, ma.Series[0]);
@@ -47,12 +47,12 @@ namespace Test.Indicators
         [Test]
         public void MoreThanLength()
         {
-            var ma = new MovingAverage(3);
+            var ma = Indicators.RequireIndicator(new MovingAverage(3), source: CandleSource.Close);
             
-            ma.Push(5);
-            ma.Push(2);
-            ma.Push(1);
-            ma.Push(3);
+            NewCandle(close: 5);
+            NewCandle(close: 2);
+            NewCandle(close: 1);
+            NewCandle(close: 3);
             
             Assert.AreEqual(2, ma.Value); // (2 + 1 + 3) / 3
             Assert.AreEqual(5, ma.Series[0]);
@@ -65,11 +65,11 @@ namespace Test.Indicators
         [Test]
         public void ZeroValues()
         {
-            var ma = new MovingAverage(3);
+            var ma = Indicators.RequireIndicator(new MovingAverage(3), source: CandleSource.Close);
             
-            ma.Push(0);
-            ma.Push(0);
-            ma.Push(0);
+            NewCandle(close: 0);
+            NewCandle(close: 0);
+            NewCandle(close: 0);
 
             Assert.AreEqual(0, ma.Value); // (0 + 0 + 0) / 3
             Assert.AreEqual(0, ma.Series[0]);
@@ -80,11 +80,11 @@ namespace Test.Indicators
         [Test]
         public void NegativeValues()
         {
-            var ma = new MovingAverage(3);
+            var ma = Indicators.RequireIndicator(new MovingAverage(3), source: CandleSource.Close);
             
-            ma.Push(-1);
-            ma.Push(-2);
-            ma.Push(-3);
+            NewCandle(close: -1);
+            NewCandle(close: -2);
+            NewCandle(close: -3);
 
             Assert.AreEqual(-2, ma.Value); // (-1 + -2 + -3) / 3
             Assert.AreEqual(-1, ma.Series[0]);
@@ -95,7 +95,7 @@ namespace Test.Indicators
         [Test]
         public void ZeroWithoutValues()
         {
-            var ma = new MovingAverage(3);
+            var ma = Indicators.RequireIndicator(new MovingAverage(3), source: CandleSource.Close);
 
             Assert.AreEqual(0, ma.Value);
             Assert.AreEqual(0, ma.Series.Count);
@@ -104,13 +104,13 @@ namespace Test.Indicators
         [Test]
         public void AlwaysZeroWhenZeroLength()
         {
-            var ma = new MovingAverage(0);
+            var ma = Indicators.RequireIndicator(new MovingAverage(0), source: CandleSource.Close);
             Assert.AreEqual(0, ma.Value);
 
-            ma.Push(1);
+            NewCandle(close: 1);
             Assert.AreEqual(0, ma.Value);
             
-            ma.Push(2);
+            NewCandle(close: 2);
             Assert.AreEqual(0, ma.Value);
             
             Assert.AreEqual(0, ma.Series.Count);

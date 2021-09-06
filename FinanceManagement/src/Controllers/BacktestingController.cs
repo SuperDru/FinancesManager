@@ -24,7 +24,16 @@ namespace FinanceManagement.Controllers
             instrument = instrument.ToUpper();
             
             var candles = await api.GetCandlesFromCsvAsync("ETHBUSD-1m-2021-06.csv");
-            var strategy = new StochLessMoreStrategy(instrument, 80m, 20m, 5m, 10m, 5m);
+            var options = new StochLessMoreStrategyOptions
+            {
+                Instrument = instrument,
+                Overbought = 80m,
+                Oversold = 20m,
+                Threshold = 5m,
+                TakeProfit = 10m,
+                StopLoss = 5m,
+            };
+            var strategy = new StochLessMoreStrategy(options);
 
             var context = new Backtest(instrument, strategy);
             return context.Process(candles);
